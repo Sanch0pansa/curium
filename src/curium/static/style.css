@@ -166,7 +166,28 @@ aside {
 .cols span, .marks i { width: 16px; }
 .cols span { text-align: center; }
 
-aside ol { display: flex; flex-direction: column; margin: 0; padding: 0 8px 8px; list-style: none; }
+aside ol {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0 8px 8px;
+  max-height: calc(100vh - 260px);
+  overflow-y: auto;
+  list-style: none;
+}
+
+aside ol, .cols {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--card-border) transparent;
+}
+
+.cols { overflow-y: hidden; }
+
+aside ol::-webkit-scrollbar, .cols::-webkit-scrollbar { width: 6px; }
+aside ol::-webkit-scrollbar-track { background: transparent; }
+aside ol::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 3px; }
+aside ol::-webkit-scrollbar-thumb:hover { background: var(--faint); }
 
 aside li a {
   display: flex;
@@ -291,6 +312,7 @@ button.read:hover { opacity: 0.75; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
   .layout { display: block; }
   aside { position: static; margin-bottom: 32px; }
+  aside ol { max-height: 50vh; }
   .courses-head { flex-direction: column; align-items: flex-start; }
   article h1 { font-size: 30px; }
 }

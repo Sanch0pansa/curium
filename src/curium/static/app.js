@@ -190,6 +190,11 @@ async function showCourse(courseId, requested) {
     </div>`;
 
   renderContent(app, courseId);
+  const list = app.querySelector("aside ol");
+  const items = list.children;
+  const first = items[number];
+  const last = items[Math.min(number + 1, items.length - 1)];
+  list.scrollTop = Math.max(Math.min(list.scrollTop, first.offsetTop - list.offsetTop), last.offsetTop + last.offsetHeight - list.offsetTop - list.clientHeight);
   document.getElementById("read")?.addEventListener("click", () => setRead(courseId, number, true));
   document.getElementById("unread")?.addEventListener("click", () => setRead(courseId, number, false));
   document.getElementById("copy")?.addEventListener("click", (event) => {
