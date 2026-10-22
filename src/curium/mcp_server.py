@@ -49,6 +49,8 @@ def set_lesson_status(
     index = storage.read_index(course)
     index["lessons"][lesson - 1][field] = value
     storage.write_index(course, index)
+    if value:
+        storage.log_action(course, lesson, field)
     return index["lessons"][lesson - 1]
 
 

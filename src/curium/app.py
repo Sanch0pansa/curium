@@ -27,6 +27,11 @@ def list_courses():
     return courses.list_courses()
 
 
+@app.get("/api/activity")
+def get_activity():
+    return courses.activity()
+
+
 @app.get("/api/courses/{course}")
 def get_course(course: str):
     index = or_not_found(storage.read_index, course)

@@ -68,9 +68,38 @@ function renderContent(element, courseId) {
   mermaid.run({ nodes: element.querySelectorAll(".mermaid") });
 }
 
+const WEEKS = 16;
+
+const isoDate = (date) => new Date(date - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+
+const plural = (number) => {
+  const tail = number % 100;
+  if (tail > 10 && tail < 15) return "дней";
+  return ["дней", "день", "дня", "дня", "дня"][number % 10] ?? "дней";
+};
+
+function activityHtml({ days, streak }) {
+  const today = new Date();
+  const weekday = (today.getDay() + 6) % 7;
+  const cells = [];
+  for (let offset = WEEKS * 7 - 1 - (6 - weekday); offset >= -(6 - weekday); offset--) {
+    const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() - offset);
+    const key = isoDate(date);
+    const count = days[key] ?? 0;
+    const state = offset < 0 ? "future" : `l${count >= 3 ? 2 : count > 0 ? 1 : 0}`;
+    cells.push(`<i class="${state}" title="${key}: ${count}"></i>`);
+  }
+  return `
+    <div class="card activity">
+      <div class="card-head mono"><span>активность</span><span>${WEEKS} нед.</span></div>
+      <div class="heat" style="--weeks: ${WEEKS}">${cells.join("")}</div>
+      <div class="card-foot mono"><span>${streak ? `Серия: ${streak} ${plural(streak)}` : "Серия не начата"}</span></div>
+    </div>`;
+}
+
 async function showCourses() {
   showTop();
-  const courses = await fetchJson("/api/courses");
+  const [courses, activity] = await Promise.all([fetchJson("/api/courses"), fetchJson("/api/activity")]);
   const cards = courses.map((course) => {
     const next = course.lessons.findIndex((lesson) => !lesson.is_read);
     const segs = course.lessons.map((lesson) => `<i class="l${level(lesson)}"></i>`);
@@ -91,7 +120,10 @@ async function showCourses() {
         <h1 class="title">Курсы</h1>
         <span class="mono faint">новый курс — через агента: «хочу освоить …»</span>
       </div>
-      ${cards.length ? `<div class="grid">${cards.join("")}</div>` : '<p class="muted">Курсов пока нет.</p>'}
+      <div class="courses-body">
+        ${cards.length ? `<div class="grid">${cards.join("")}</div>` : '<p class="muted">Курсов пока нет.</p>'}
+        ${activityHtml(activity)}
+      </div>
       <div class="legend mono">
         <span><i style="background: var(--accent)"></i>урок закрыт</span>
         <span><i style="background: var(--partial)"></i>в процессе</span>
